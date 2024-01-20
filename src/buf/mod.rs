@@ -36,7 +36,7 @@ pub use self::chain::Chain;
 pub use self::cursor::BufCursor;
 pub use self::iter::IntoIter;
 pub use self::limit::Limit;
-pub use self::seek_buf::SeekBuf;
+pub use self::seek_buf::{SeekBuf, SeekBufExt};
 pub use self::take::Take;
 pub use self::uninit_slice::UninitSlice;
 

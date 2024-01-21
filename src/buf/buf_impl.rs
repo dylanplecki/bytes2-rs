@@ -1403,9 +1403,9 @@ impl<T: Buf + ?Sized, A: core::alloc::Allocator> Buf for Box<T, A> {
 }
 
 impl<P> Buf for Pin<P>
-    where
-        P: DerefMut,
-        P::Target: Buf + Unpin,
+where
+    P: DerefMut,
+    P::Target: Buf + Unpin,
 {
     #[inline]
     fn remaining(&self) -> usize {

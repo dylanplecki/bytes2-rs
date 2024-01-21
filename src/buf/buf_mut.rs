@@ -3,9 +3,9 @@ use crate::buf::{limit, Chain, Limit, UninitSlice};
 use crate::buf::{writer, Writer};
 use crate::{impl_with_allocator, panic_advance, panic_does_not_fit};
 
-use core::{mem, ptr, usize};
 use core::ops::DerefMut;
 use core::pin::Pin;
+use core::{mem, ptr, usize};
 
 use alloc::{boxed::Box, vec::Vec};
 
@@ -1482,9 +1482,9 @@ unsafe impl<T: BufMut + ?Sized, A: core::alloc::Allocator> BufMut for Box<T, A> 
 }
 
 unsafe impl<P> BufMut for Pin<P>
-    where
-        P: DerefMut,
-        P::Target: BufMut + Unpin,
+where
+    P: DerefMut,
+    P::Target: BufMut + Unpin,
 {
     #[inline]
     fn remaining_mut(&self) -> usize {

@@ -5,6 +5,7 @@
 ))]
 #![no_std]
 #![cfg_attr(feature = "allocator_api", feature(allocator_api))]
+#![cfg_attr(feature = "core_io_borrowed_buf", feature(core_io_borrowed_buf))]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
 //! Provides abstractions for working with bytes.

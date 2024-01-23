@@ -1,4 +1,5 @@
 #![warn(rust_2018_idioms)]
+#![cfg_attr(feature = "core_io_borrowed_buf", feature(core_io_borrowed_buf))]
 
 use bytes::buf::UninitSlice;
 use bytes::{BufMut, BytesMut};
@@ -273,4 +274,23 @@ fn copy_from_slice_panics_if_different_length_2() {
 
     let slice = unsafe { UninitSlice::from_raw_parts_mut(data.as_mut_ptr(), 3) };
     slice.copy_from_slice(b"abcd");
+}
+
+#[test]
+#[cfg(feature = "core_io_borrowed_buf")]
+fn test_uninit_slice_borrow_buf() {
+    let mut data = [0; 16];
+    let slice = unsafe { UninitSlice::from_raw_parts_mut(data.as_mut_ptr(), data.len()) };
+
+    let mut borrowed_buf = slice.borrow_buf();
+
+    assert_eq!(borrowed_buf.len(), 0);
+    assert_eq!(borrowed_buf.capacity(), 16);
+
+    let mut cursor = borrowed_buf.unfilled();
+
+    cursor.append(&[1]);
+    assert_eq!(cursor.written(), 1);
+
+    assert_eq!(borrowed_buf.len(), 1);
 }

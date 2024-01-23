@@ -205,6 +205,41 @@ impl UninitSlice {
     pub fn len(&self) -> usize {
         self.0.len()
     }
+
+    /// Returns a new borrowed buf to use in write operations.
+    ///
+    /// Writes to the borrowed buf must be synchronized back to the original
+    /// [crate::BufMut] via [crate::BufMut::advance_mut] or the writes will be
+    /// lost.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// #[cfg(feature = "core_io_borrowed_buf")]
+    /// {
+    ///     use bytes::BufMut;
+    ///
+    ///     let mut data = [0; 16];
+    ///     let slice = unsafe { UninitSlice::from_raw_parts_mut(data.as_mut_ptr(), data.len()) };
+    ///
+    ///     let mut borrowed_buf = slice.borrow_buf();
+    ///
+    ///     assert_eq!(borrowed_buf.len(), 0);
+    ///     assert_eq!(borrowed_buf.capacity(), 16);
+    ///
+    ///     let mut cursor = borrowed_buf.unfilled();
+    ///
+    ///     cursor.append(&[1]);
+    ///     assert_eq!(cursor.written(), 1);
+    ///
+    ///     assert_eq!(borrowed_buf.len(), 1);
+    /// }
+    /// ```
+    #[cfg(feature = "core_io_borrowed_buf")]
+    #[inline]
+    pub fn borrow_buf(&mut self) -> core::io::BorrowedBuf<'_> {
+        core::io::BorrowedBuf::from(&mut self.0)
+    }
 }
 
 impl fmt::Debug for UninitSlice {

@@ -22,6 +22,7 @@ categories = ["network-programming", "data-structures"]
 default = ["std"]
 std = []
 allocator_api = []
+core_io_borrowed_buf = []
 
 [dependencies]
 serde = { version = "1.0.60", optional = true, default-features = false, features = ["alloc"] }

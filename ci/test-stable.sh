@@ -6,17 +6,9 @@ cmd="${1:-test}"
 
 # Run with each feature
 # * --each-feature includes both default/no-default features
+# * --exclude-features will not test any nightly-only features
 # * --optional-deps is needed for serde feature
-cargo hack "${cmd}" --each-feature --optional-deps
-# Run with all features
-cargo "${cmd}" --all-features
+cargo hack "${cmd}" --each-feature --exclude-features allocator_api,core_io_borrowed_buf --optional-deps
 
-if [[ "${RUST_VERSION}" == "nightly"* ]]; then
-    # Check benchmarks
-    cargo check --benches
-
-    # Check minimal versions
-    cargo clean
-    cargo update -Zminimal-versions
-    cargo check --all-features
-fi
+# Run with all stable features
+cargo "${cmd}" --features std

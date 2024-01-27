@@ -13,7 +13,7 @@ on:
 env:
   RUSTFLAGS: -Dwarnings
   RUST_BACKTRACE: 1
-  nightly: nightly-2022-11-12
+  nightly: nightly-2023-12-13
 
 defaults:
   run:
@@ -54,7 +54,11 @@ jobs:
       - name: Install cargo-hack
         uses: taiki-e/install-action@cargo-hack
       - name: Check
-        run: cargo hack check --feature-powerset --optional-deps --rust-version
+        run: >
+          cargo hack check \
+            --feature-powerset \
+            --exclude-features allocator_api,core_io_borrowed_buf \
+            --optional-deps --rust-version
 
   # Stable
   stable:
@@ -87,7 +91,7 @@ jobs:
       - name: Install cargo-hack
         uses: taiki-e/install-action@cargo-hack
       - name: Test
-        run: ci/test-stable.sh test
+        run: ci/test-nightly.sh test
 
   # Run tests on some extra platforms
   cross:
@@ -149,32 +153,3 @@ jobs:
         run: rustup update $nightly && rustup default $nightly
       - name: Loom tests
         run: RUSTFLAGS="--cfg loom -Dwarnings" cargo test --lib
-
-  publish_docs:
-    name: Publish Documentation
-    needs:
-      - rustfmt
-      # - clippy
-      - stable
-      - nightly
-      - minrust
-      - cross
-      - tsan
-      - loom
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install Rust
-        run: rustup update $nightly && rustup default $nightly
-      - name: Build documentation
-        run: cargo doc --no-deps --all-features
-        env:
-          RUSTDOCFLAGS: --cfg docsrs
-      - name: Publish documentation
-        run: |
-          cd target/doc
-          git init
-          git add .
-          git -c user.name='ci' -c user.email='ci' commit -m 'Deploy Bytes API documentation'
-          git push -f -q https://git:${{ secrets.github_token }}@github.com/${{ github.repository }} HEAD:gh-pages
-        if: github.event_name == 'push' && github.event.ref == 'refs/heads/master' && github.repository == 'tokio-rs/bytes'

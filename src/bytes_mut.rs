@@ -80,6 +80,12 @@ struct Shared {
     ref_count: AtomicUsize,
 }
 
+// Assert that the alignment of `Shared` is divisible by 2.
+// This is a necessary invariant since we depend on allocating `Shared` a
+// shared object to implicitly carry the `KIND_ARC` flag in its pointer.
+// This flag is set when the LSB is 0.
+const _: [(); 0 - mem::align_of::<Shared>() % 2] = []; // Assert that the alignment of `Shared` is divisible by 2.
+
 // Buffer storage strategy flags.
 const KIND_ARC: usize = 0b0;
 const KIND_VEC: usize = 0b1;
@@ -1702,6 +1708,7 @@ unsafe fn rebuild_vec(ptr: *mut u8, mut len: usize, mut cap: usize, off: usize) 
 static SHARED_VTABLE: Vtable = Vtable {
     clone: shared_v_clone,
     to_vec: shared_v_to_vec,
+    is_unique: crate::bytes::shared_is_unique,
     drop: shared_v_drop,
 };
 

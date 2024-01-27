@@ -11,4 +11,4 @@ cmd="${1:-test}"
 cargo hack "${cmd}" --each-feature --exclude-features allocator_api,core_io_borrowed_buf --optional-deps
 
 # Run with all stable features
-cargo "${cmd}" --feature std
+cargo "${cmd}" --features std

@@ -215,6 +215,7 @@ impl UninitSlice {
     /// # Examples
     ///
     /// ```
+    /// #![cfg_attr(feature = "core_io_borrowed_buf", feature(core_io_borrowed_buf))]
     /// #[cfg(feature = "core_io_borrowed_buf")]
     /// {
     ///     use bytes::buf::UninitSlice;

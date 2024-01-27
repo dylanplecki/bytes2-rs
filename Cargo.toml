@@ -25,7 +25,7 @@ allocator_api = []
 core_io_borrowed_buf = []
 
 [dependencies]
-pin-project-lite = "0.2.13"
+pin-project-lite = "0.2"
 serde = { version = "1.0.60", optional = true, default-features = false, features = ["alloc"] }
 
 [dev-dependencies]

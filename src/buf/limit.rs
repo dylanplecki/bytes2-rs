@@ -2,13 +2,18 @@ use crate::buf::UninitSlice;
 use crate::BufMut;
 
 use core::cmp;
+use core::pin::Pin;
+use pin_project_lite::pin_project;
 
-/// A `BufMut` adapter which limits the amount of bytes that can be written
-/// to an underlying buffer.
-#[derive(Debug)]
-pub struct Limit<T> {
-    inner: T,
-    limit: usize,
+pin_project! {
+    /// A `BufMut` adapter which limits the amount of bytes that can be written
+    /// to an underlying buffer.
+    #[derive(Debug)]
+    pub struct Limit<T> {
+        #[pin]
+        inner: T,
+        limit: usize,
+    }
 }
 
 pub(super) fn new<T>(inner: T, limit: usize) -> Limit<T> {
@@ -28,11 +33,25 @@ impl<T> Limit<T> {
         &self.inner
     }
 
+    /// Gets a pinned reference to the underlying `BufMut`.
+    ///
+    /// It is inadvisable to directly write to the underlying `BufMut`.
+    pub fn get_pinned_ref(self: Pin<&Self>) -> Pin<&T> {
+        self.project_ref().inner
+    }
+
     /// Gets a mutable reference to the underlying `BufMut`.
     ///
     /// It is inadvisable to directly write to the underlying `BufMut`.
     pub fn get_mut(&mut self) -> &mut T {
         &mut self.inner
+    }
+
+    /// Gets a pinned mutable reference to the underlying `BufMut`.
+    ///
+    /// It is inadvisable to directly write to the underlying `BufMut`.
+    pub fn get_pinned_mut(self: Pin<&mut Self>) -> Pin<&mut T> {
+        self.project().inner
     }
 
     /// Returns the maximum number of bytes that can be written

@@ -1,15 +1,20 @@
 use crate::{Buf, Bytes, SeekBuf};
 
 use core::cmp;
+use core::pin::Pin;
+use pin_project_lite::pin_project;
 
-/// A `Buf` adapter which limits the bytes read from an underlying buffer.
-///
-/// This struct is generally created by calling `take()` on `Buf`. See
-/// documentation of [`take()`](Buf::take) for more details.
-#[derive(Debug)]
-pub struct Take<T> {
-    inner: T,
-    limit: usize,
+pin_project! {
+    /// A `Buf` adapter which limits the bytes read from an underlying buffer.
+    ///
+    /// This struct is generally created by calling `take()` on `Buf`. See
+    /// documentation of [`take()`](Buf::take) for more details.
+    #[derive(Debug)]
+    pub struct Take<T> {
+        #[pin]
+        inner: T,
+        limit: usize,
+    }
 }
 
 pub fn new<T>(inner: T, limit: usize) -> Take<T> {
@@ -57,6 +62,13 @@ impl<T> Take<T> {
         &self.inner
     }
 
+    /// Gets a pinned reference to the underlying `Buf`.
+    ///
+    /// It is inadvisable to directly read from the underlying `Buf`.
+    pub fn get_pinned_ref(self: Pin<&Self>) -> Pin<&T> {
+        self.project_ref().inner
+    }
+
     /// Gets a mutable reference to the underlying `Buf`.
     ///
     /// It is inadvisable to directly read from the underlying `Buf`.
@@ -76,6 +88,13 @@ impl<T> Take<T> {
     /// ```
     pub fn get_mut(&mut self) -> &mut T {
         &mut self.inner
+    }
+
+    /// Gets a pinned mutable reference to the underlying `Buf`.
+    ///
+    /// It is inadvisable to directly read from the underlying `Buf`.
+    pub fn get_pinned_mut(self: Pin<&mut Self>) -> Pin<&mut T> {
+        self.project().inner
     }
 
     /// Returns the maximum number of bytes that can be read.

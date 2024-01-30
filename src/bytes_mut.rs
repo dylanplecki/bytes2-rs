@@ -726,10 +726,10 @@ impl BytesMut {
                 }
 
                 return;
-            } else {
-                new_cap = cmp::max(new_cap, original_capacity);
             }
         }
+
+        new_cap = cmp::max(new_cap, original_capacity);
 
         // Create a new vector to store the data
         let mut v = ManuallyDrop::new(Vec::with_capacity(new_cap));
@@ -1078,7 +1078,7 @@ impl Buf for BytesMut {
         }
     }
 
-    fn copy_to_bytes(&mut self, len: usize) -> crate::Bytes {
+    fn copy_to_bytes(&mut self, len: usize) -> Bytes {
         self.split_to(len).freeze()
     }
 }
@@ -1110,7 +1110,7 @@ unsafe impl BufMut for BytesMut {
     // Specialize these methods so they can skip checking `remaining_mut`
     // and `advance_mut`.
 
-    fn put<T: crate::Buf>(&mut self, mut src: T)
+    fn put<T: Buf>(&mut self, mut src: T)
     where
         Self: Sized,
     {
@@ -1628,7 +1628,7 @@ impl From<BytesMut> for Vec<u8> {
                 let (off, _) = bytes.get_vec_pos();
                 rebuild_vec(bytes.ptr.as_ptr(), bytes.len, bytes.cap, off)
             }
-        } else if kind == KIND_ARC {
+        } else {
             let shared = bytes.data as *mut Shared;
 
             if unsafe { (*shared).is_unique() } {
@@ -1640,8 +1640,6 @@ impl From<BytesMut> for Vec<u8> {
             } else {
                 return bytes.deref().to_vec();
             }
-        } else {
-            return bytes.deref().to_vec();
         };
 
         let len = bytes.len;

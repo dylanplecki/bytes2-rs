@@ -19,7 +19,16 @@ impl_with_allocator! {
         }
 
         fn advance(&mut self, cnt: usize) {
-            self.drain(..cnt);
+            if cnt == self.len() {
+                // When we empty the VecDeque, it's preferred to clear the last
+                // entries rather than drain them, since this will also reset
+                // the internal head pointer back to the front of the memory
+                // region. This prevents unnecessary memory fragmentation on
+                // reuse of the VecDeque.
+                self.clear();
+            } else {
+                self.drain(..cnt);
+            }
         }
     }
 }

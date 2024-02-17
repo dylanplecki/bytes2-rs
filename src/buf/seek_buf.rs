@@ -149,7 +149,13 @@ impl<T: SeekBuf + ?Sized> SeekBuf for &mut T {
     deref_forward_seek_buf!();
 }
 
+#[cfg(not(feature = "allocator_api"))]
 impl<T: SeekBuf + ?Sized> SeekBuf for Box<T> {
+    deref_forward_seek_buf!();
+}
+
+#[cfg(feature = "allocator_api")]
+impl<T: SeekBuf + ?Sized, A: core::alloc::Allocator> SeekBuf for Box<T, A> {
     deref_forward_seek_buf!();
 }
 
